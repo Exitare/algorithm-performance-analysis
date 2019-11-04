@@ -4,17 +4,14 @@ from sklearn.externals import joblib
 
 import pandas as pd
 
-from sklearn import preprocessing
-from sklearn_pandas import gen_features
-from sklearn_pandas import DataFrameMapper
-
 from sklearn import ensemble
 import sklearn
 import numpy as np
 from matplotlib import pyplot as plt
-from preprocessing import ChooseFeatureColumns
-from preprocessing import MyMapper
+
 import ast
+from scripts.preprocessing import ChooseFeatureColumns, MyMapper
+
 
 class TrainModel(object):
 
