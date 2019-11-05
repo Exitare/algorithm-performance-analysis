@@ -1,13 +1,10 @@
 import argparse
 import scipy
 from sklearn.externals import joblib
-
 import pandas as pd
 import sklearn
 import numpy as np
 from matplotlib import pyplot as plt
-
-
 
 
 class PredictRuntime(object):
@@ -18,13 +15,13 @@ class PredictRuntime(object):
 
         # load the input file into a pandas dataframe
         if args.filename.endswith(".csv"):
-            self.df=pd.read_csv(args.filename)
+            self.df = pd.read_csv(args.filename)
         elif args.filename.endswith(".tsv"):
-            self.df=pd.read_csv(args.filename, sep="\t")
+            self.df = pd.read_csv(args.filename, sep="\t")
         else:
             raise ValueError("unrecognized filetype: %s. I only accept tsv or csv files" % self.args.filename)
 
-        if self.args.runtime_label == None:
+        if self.args.runtime_label is None:
             df_features, df_labels = self.df, None
         else:
             df_features, df_labels = self.df, self.df.pop(self.args.runtime_label)
@@ -33,17 +30,17 @@ class PredictRuntime(object):
         # prepare the data for the RandomForestRegressor
         if not self.args.single_prediction:
             print("setting up...")
-        self.pipe = joblib.load(self.args.model_filename)    
+        self.pipe = joblib.load(self.args.model_filename)
 
         if not self.args.single_prediction:
             print("predicting")
         df_pred = self.pipe.predict(df_features)
 
         # unlog the runtimes (they were previously log transformed in the function clean_data()) 
-        cq=pd.DataFrame()
+        cq = pd.DataFrame()
         cq["pred"] = np.expm1(df_pred)
         if not df_labels is None:
-           cq["labels"] = np.expm1(df_labels)
+            cq["labels"] = np.expm1(df_labels)
 
         # do the final analysis
         self.analysis_of_results(cq, list(df_features))
@@ -53,7 +50,7 @@ class PredictRuntime(object):
 
     def analysis_of_results(self, cq, features):
         # some metrics
-        if ('labels' in cq):
+        if 'labels' in cq:
             r2_score = sklearn.metrics.r2_score(cq["labels"], cq["pred"])
             pearson = scipy.stats.pearsonr(cq["labels"], cq["pred"])
             mse = sklearn.metrics.mean_squared_error(cq["labels"], cq["pred"])
@@ -65,11 +62,10 @@ class PredictRuntime(object):
         if self.args.single_prediction:
             print(cq["pred"][0])
 
-
         # save a plot
-        if (self.args.plot_outfile != None) and ('labels' in cq):
-            plt.figure(figsize=(10,10))
-            plt.scatter(cq["labels"],cq["pred"])
+        if (self.args.plot_outfile is not None) and ('labels' in cq):
+            plt.figure(figsize=(10, 10))
+            plt.scatter(cq["labels"], cq["pred"])
             # plt.xlim([0,cq["labels"].max()])
             # plt.ylim([0,cq["labels"].max()])
             # plt.plot([0,cq["labels"].max()],[0,cq["labels"].max()], 'r')
@@ -85,11 +81,14 @@ def main():
                                      epilog='Accepts tsv and csv files')
     parser.add_argument('--filename', dest='filename', action='store', required=True)
     parser.add_argument("--runtime_label", dest='runtime_label', action='store', default="runtime")
-    parser.add_argument('--plot_outfile', dest='plot_outfile', action='store', default="plot.png", help='png output file.')
-    parser.add_argument('--model_filename', dest='model_filename', action='store', default='model.pkl', help='.pkl model file.')
+    parser.add_argument('--plot_outfile', dest='plot_outfile', action='store', default="plot.png",
+                        help='png output file.')
+    parser.add_argument('--model_filename', dest='model_filename', action='store', default='model.pkl',
+                        help='.pkl model file.')
     parser.add_argument('--single_prediction', dest='single_prediction', action='store', default=False)
     args = parser.parse_args()
     return PredictRuntime(args)
+
 
 if __name__ == '__main__':
     main()
