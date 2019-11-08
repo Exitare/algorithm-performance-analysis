@@ -11,7 +11,7 @@ import ast
 from scripts.preprocessing import ChooseFeatureColumns, MyMapper
 
 
-class TrainModel(object):
+class TrainModel:
 
     def __init__(self, args):
 

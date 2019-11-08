@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-class PredictRuntime(object):
+class PredictRuntime:
 
     def __init__(self, args):
 
